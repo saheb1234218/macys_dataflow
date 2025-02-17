@@ -1,0 +1,67 @@
+application:
+  actions: actions
+  web: web-src
+  runtimeManifest:
+    packages:
+      macysktlo:
+        license: Apache-2.0
+        actions:
+          testscheduler:
+            function: actions/testscheduler/index.js
+            limits:
+              timeout: 1800000
+            runtime: nodejs:16
+            inputs:
+              LOG_LEVEL: debug
+              apiKey: $SERVICE_API_KEY
+            annotations:
+              require-adobe-auth: false
+              final: false
+          ajoscheduler:
+            function: actions/ajoscheduler/index.js
+            limits:
+              timeout: 1800000
+            runtime: nodejs:16
+            inputs:
+              LOG_LEVEL: debug
+              apiKey: $SERVICE_API_KEY
+            annotations:
+              require-adobe-auth: false
+              final: false
+          dataflowscheduler:
+            function: actions/dataflowscheduler/index.js
+            limits:
+              timeout: 1800000
+            runtime: nodejs:16
+            inputs:
+              LOG_LEVEL: debug
+              apiKey: $SERVICE_API_KEY
+            annotations:
+              require-adobe-auth: false
+              final: false
+          publish-events:
+            function: actions/publish-events/index.js
+            web: 'yes'
+            runtime: nodejs:16
+            inputs:
+              LOG_LEVEL: debug
+              apiKey: $SERVICE_API_KEY
+            annotations:
+              require-adobe-auth: false
+              final: false
+        triggers:
+          testingdev:
+            feed: /whisk.system/alarms/interval
+            inputs: 
+              minutes: 60
+          testinguat:
+            feed: /whisk.system/alarms/interval
+            inputs: 
+              minutes: 60
+        rules:
+          ruledev:
+            trigger: testingdev
+            action: ajoscheduler
+          ruleuat:
+            trigger: testinguat
+            action: testscheduler
